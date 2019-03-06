@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import fs from 'fs';
 
-const showDiff = (firstFilePath, secondFilePath) => {
+const genDiff = (firstFilePath, secondFilePath) => {
   const firstConfig = fs.readFileSync(firstFilePath, 'utf8');
   const secondConfig = fs.readFileSync(secondFilePath, 'utf8');
   const firstConfigObj = JSON.parse(firstConfig);
@@ -12,57 +12,50 @@ const showDiff = (firstFilePath, secondFilePath) => {
     if (_.has(secondConfigObj, currentKey)) {
       if (_.has(firstConfigObj, currentKey)) {
         if (firstConfigObj[`${currentKey}`] === secondConfigObj[`${currentKey}`]) {
-          acc.push({
+          return [...acc, {
             keyName: currentKey,
             valueBeforeChange: firstConfigObj[`${currentKey}`],
             valueAfterChange: secondConfigObj[`${currentKey}`],
             operation: 'no change',
-          });
-          return acc;
+          }];
         }
-        acc.push({
+        return [...acc, {
           keyName: currentKey,
           valueBeforeChange: firstConfigObj[`${currentKey}`],
           valueAfterChange: secondConfigObj[`${currentKey}`],
           operation: 'info change',
-        });
-        return acc;
+        }];
       }
-      acc.push({
+      return [...acc, {
         keyName: currentKey,
         valueBeforeChange: firstConfigObj[`${currentKey}`],
         valueAfterChange: secondConfigObj[`${currentKey}`],
         operation: 'info added',
-      });
-      return acc;
+      }];
     }
-    acc.push({
+    return [...acc, {
       keyName: currentKey,
       valueBeforeChange: firstConfigObj[`${currentKey}`],
       valueAfterChange: secondConfigObj[`${currentKey}`],
       operation: 'info deleted',
-    });
-    return acc;
+    }];
   }, []);
 
   // Returns a string of differences
   const differenceString = differenceAst.reduce((acc, currentValue) => {
-    if (currentValue.operation === 'info change') {
-      return `${acc}
-  + ${currentValue.keyName}: ${currentValue.valueAfterChange}
-  - ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
-    } if (currentValue.operation === 'info added') {
-      return `${acc}
-  + ${currentValue.keyName}: ${currentValue.valueAfterChange}`;
-    } if (currentValue.operation === 'info deleted') {
-      return `${acc}
-  - ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
+    switch (currentValue.operation) {
+      case 'info change':
+        return `${acc}\n  + ${currentValue.keyName}: ${currentValue.valueAfterChange}\n  - ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
+      case 'info added':
+        return `${acc}\n  + ${currentValue.keyName}: ${currentValue.valueAfterChange}`;
+      case 'info deleted':
+        return `${acc}\n  - ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
+      default:
+        return `${acc}\n  ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
     }
-    return `${acc}
-  ${currentValue.keyName}: ${currentValue.valueBeforeChange}`;
   }, '');
-  return `{${differenceString}
-}`;
+
+  return `{${differenceString}\n}`;
 };
 
-export default showDiff;
+export default genDiff;
