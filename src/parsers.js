@@ -1,14 +1,14 @@
 import path from 'path';
 import yaml from 'js-yaml';
 
-export default (objectName) => {
+export default (objectName, object) => {
   const objectFormat = path.extname(objectName);
   switch (objectFormat) {
     case '.json':
-      return JSON.parse;
+      return JSON.parse(object);
     case '.yml':
-      return yaml.safeLoad;
+      return yaml.safeLoad(object);
     default:
-      return JSON.parse;
+      return JSON.parse(object);
   }
 };
