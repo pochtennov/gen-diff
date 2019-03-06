@@ -9,13 +9,7 @@ const afterYML = '__tests__/__fixtures__/yaml-after.yml';
 const correctResultDifferencePath = '__tests__/__fixtures__/resultText.txt';
 const correctResultDifference = fs.readFileSync(correctResultDifferencePath, 'utf8');
 
-// Can't understand what is the problem with linter here
-test('compare two plain JSON files', () => {
-  const currentDifference = genDiff(beforeJSON, afterJSON);
-  expect(currentDifference).toBe(correctResultDifference);
-});
-
-test('compare two plain YAML files', () => {
-  const currentDifference = genDiff(beforeYML, afterYML);
+test.each([[beforeJSON, afterJSON], [beforeYML, afterYML]])('compare two plain files', (configBefore, configAfter) => {
+  const currentDifference = genDiff(configBefore, configAfter);
   expect(currentDifference).toBe(correctResultDifference);
 });
