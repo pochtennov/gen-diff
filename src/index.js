@@ -1,11 +1,14 @@
 import _ from 'lodash';
 import fs from 'fs';
+import genParser from './parsers';
 
 const genDiff = (firstFilePath, secondFilePath) => {
+  // We assume, that both files have the same extension
+  const parse = genParser(firstFilePath);
   const firstConfig = fs.readFileSync(firstFilePath, 'utf8');
   const secondConfig = fs.readFileSync(secondFilePath, 'utf8');
-  const firstConfigObj = JSON.parse(firstConfig);
-  const secondConfigObj = JSON.parse(secondConfig);
+  const firstConfigObj = parse(firstConfig);
+  const secondConfigObj = parse(secondConfig);
 
   const objKeys = _.union(Object.keys(firstConfigObj), Object.keys(secondConfigObj));
   const differenceAst = objKeys.reduce((acc, currentKey) => {
