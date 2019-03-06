@@ -11,7 +11,7 @@ const afterINI = '__tests__/__fixtures__/ini-after.ini';
 const correctResultDifferencePath = '__tests__/__fixtures__/resultText.txt';
 const correctResultDifference = fs.readFileSync(correctResultDifferencePath, 'utf8');
 
-test.each([[beforeJSON, afterJSON], [beforeYML, afterYML], [beforeINI, afterINI]])('compare two plain files', (configBefore, configAfter) => {
-  const currentDifference = genDiff(configBefore, configAfter);
+test.each([[beforeJSON, afterJSON], [beforeYML, afterYML], [beforeINI, afterINI]])('compare two plain files', (configPathBefore, configPathAfter) => {
+  const currentDifference = genDiff(configPathBefore, configPathAfter);
   expect(currentDifference).toBe(correctResultDifference);
 });
