@@ -1,7 +1,8 @@
+import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
-import fs from 'fs';
 import parse from './parsers';
+import render from './render';
 
 const genDiff = (firstFilePath, secondFilePath) => {
   const firstConfigFile = fs.readFileSync(firstFilePath, 'utf8');
@@ -11,52 +12,47 @@ const genDiff = (firstFilePath, secondFilePath) => {
   const firstConfigObj = parse(firstConfigFormat, firstConfigFile);
   const secondConfigObj = parse(secondConfigFormat, secondConfigFile);
 
-  const objKeys = _.union(_.keys(firstConfigObj), _.keys(secondConfigObj));
-  const differenceAst = objKeys.reduce((acc, currentKey) => {
-    if (_.has(secondConfigObj, currentKey)) {
-      if (_.has(firstConfigObj, currentKey)) {
-        if (firstConfigObj[currentKey] === secondConfigObj[currentKey]) {
+  const genDiffAst = (firstConfObj, secondConfObj) => {
+    const objKeys = _.union(_.keys(firstConfObj), _.keys(secondConfObj));
+    const differenceAst = objKeys.reduce((acc, currentKey) => {
+      if (_.has(firstConfObj, currentKey)) {
+        if (_.has(secondConfObj, currentKey)) {
+          if (_.isObject(firstConfObj[currentKey]) && _.isObject(secondConfObj[currentKey])) {
+            return [...acc, {
+              keyName: currentKey,
+              children: genDiffAst(firstConfObj[currentKey], secondConfObj[currentKey]),
+            }];
+          }
+          if (firstConfObj[currentKey] === secondConfObj[currentKey]) {
+            return [...acc, {
+              keyName: currentKey,
+              keyValue: firstConfObj[currentKey],
+              operation: 'not changed',
+            }];
+          }
           return [...acc, {
             keyName: currentKey,
-            keyValue: firstConfigObj[currentKey],
-            operation: 'not changed',
+            keyValueBeforeChange: firstConfObj[currentKey],
+            keyValueAfterChange: secondConfObj[currentKey],
+            operation: 'changed',
           }];
         }
         return [...acc, {
           keyName: currentKey,
-          keyValueBeforeChange: firstConfigObj[currentKey],
-          keyValueAfterChange: secondConfigObj[currentKey],
-          operation: 'changed',
+          keyValue: firstConfObj[currentKey],
+          operation: 'deleted',
         }];
       }
       return [...acc, {
         keyName: currentKey,
-        keyValue: secondConfigObj[currentKey],
+        keyValue: secondConfObj[currentKey],
         operation: 'added',
       }];
-    }
-    return [...acc, {
-      keyName: currentKey,
-      keyValue: firstConfigObj[currentKey],
-      operation: 'deleted',
-    }];
-  }, []);
-
-  // Returns a string of differences
-  const differenceString = differenceAst.reduce((acc, currentValue) => {
-    if (currentValue.operation === 'changed') {
-      return [...acc, `  + ${currentValue.keyName}: ${currentValue.keyValueAfterChange}`, `  - ${currentValue.keyName}: ${currentValue.keyValueBeforeChange}`];
-    }
-    if (currentValue.operation === 'added') {
-      return [...acc, `  + ${currentValue.keyName}: ${currentValue.keyValue}`];
-    }
-    if (currentValue.operation === 'deleted') {
-      return [...acc, `  - ${currentValue.keyName}: ${currentValue.keyValue}`];
-    }
-    return [...acc, `  ${currentValue.keyName}: ${currentValue.keyValue}`];
-  }, []);
-
-  return `{\n${differenceString.join('\n')}\n}`;
+    }, []);
+    return differenceAst;
+  };
+  const difference = genDiffAst(firstConfigObj, secondConfigObj);
+  return render(difference);
 };
 
 export default genDiff;
