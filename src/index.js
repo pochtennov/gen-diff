@@ -2,9 +2,9 @@ import fs from 'fs';
 import _ from 'lodash';
 import path from 'path';
 import parse from './parsers';
-import render from './render';
+import render from './renderers';
 
-const genDiff = (firstFilePath, secondFilePath) => {
+const genDiff = (firstFilePath, secondFilePath, outputFormat) => {
   const firstConfigFile = fs.readFileSync(firstFilePath, 'utf8');
   const secondConfigFile = fs.readFileSync(secondFilePath, 'utf8');
   const firstConfigFormat = path.extname(firstFilePath);
@@ -21,38 +21,40 @@ const genDiff = (firstFilePath, secondFilePath) => {
             return [...acc, {
               keyName: currentKey,
               children: genDiffAst(firstConfObj[currentKey], secondConfObj[currentKey]),
+              nodeType: 'nested',
             }];
           }
           if (firstConfObj[currentKey] === secondConfObj[currentKey]) {
             return [...acc, {
               keyName: currentKey,
               keyValue: firstConfObj[currentKey],
-              operation: 'not changed',
+              nodeType: 'not changed',
             }];
           }
           return [...acc, {
             keyName: currentKey,
             keyValueBeforeChange: firstConfObj[currentKey],
             keyValueAfterChange: secondConfObj[currentKey],
-            operation: 'changed',
+            nodeType: 'changed',
           }];
         }
         return [...acc, {
           keyName: currentKey,
           keyValue: firstConfObj[currentKey],
-          operation: 'deleted',
+          nodeType: 'deleted',
         }];
       }
       return [...acc, {
         keyName: currentKey,
         keyValue: secondConfObj[currentKey],
-        operation: 'added',
+        nodeType: 'added',
       }];
     }, []);
     return differenceAst;
   };
   const difference = genDiffAst(firstConfigObj, secondConfigObj);
-  return render(difference);
+  console.log(difference);
+  return render(difference, outputFormat);
 };
 
 export default genDiff;

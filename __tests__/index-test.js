@@ -8,10 +8,18 @@ const beforeYMLfilePath = '__tests__/__fixtures__/yaml-before.yml';
 const afterYMLfilePath = '__tests__/__fixtures__/yaml-after.yml';
 const beforeINIfilePath = '__tests__/__fixtures__/ini-before.ini';
 const afterINIfilePath = '__tests__/__fixtures__/ini-after.ini';
-const correctResultDifferencePath = '__tests__/__fixtures__/resultText.txt';
-const correctResultDifference = fs.readFileSync(correctResultDifferencePath, 'utf8');
+const correctResultDefaultPath = '__tests__/__fixtures__/resultTextNested.txt';
+const correctResultPlainPath = '__tests__/__fixtures__/resultTextPlain.txt';
 
-test.each([[beforeJSONfilePath, afterJSONfilePath], [beforeYMLfilePath, afterYMLfilePath], [beforeINIfilePath, afterINIfilePath]])('compare two plain files', (configPathBefore, configPathAfter) => {
-  const currentDifference = genDiff(configPathBefore, configPathAfter);
-  expect(currentDifference).toBe(correctResultDifference);
+
+test.each([[beforeJSONfilePath, afterJSONfilePath], [beforeYMLfilePath, afterYMLfilePath], [beforeINIfilePath, afterINIfilePath]])('compare two files', (configPathBefore, configPathAfter) => {
+  const correctResultDefaultFormat = fs.readFileSync(correctResultDefaultPath, 'utf8');
+  const currentDifference = genDiff(configPathBefore, configPathAfter, 'default');
+  expect(currentDifference).toBe(correctResultDefaultFormat);
+});
+
+test('Compare two files with plain format output', () => {
+  const correctResultPlainFormat = fs.readFileSync(correctResultPlainPath, 'utf8');
+  const currentDifference = genDiff(beforeJSONfilePath, afterJSONfilePath, 'plain');
+  expect(currentDifference).toBe(correctResultPlainFormat);
 });
