@@ -14,7 +14,7 @@ const correctResultPlainPath = '__tests__/__fixtures__/resultTextPlain.txt';
 
 test.each([[beforeJSONfilePath, afterJSONfilePath], [beforeYMLfilePath, afterYMLfilePath], [beforeINIfilePath, afterINIfilePath]])('compare two files', (configPathBefore, configPathAfter) => {
   const correctResultDefaultFormat = fs.readFileSync(correctResultDefaultPath, 'utf8');
-  const currentDifference = genDiff(configPathBefore, configPathAfter, 'default');
+  const currentDifference = genDiff(configPathBefore, configPathAfter, 'object');
   expect(currentDifference).toBe(correctResultDefaultFormat);
 });
 

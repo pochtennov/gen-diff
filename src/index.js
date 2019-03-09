@@ -4,7 +4,7 @@ import path from 'path';
 import parse from './parsers';
 import render from './renderers';
 
-const genDiff = (firstFilePath, secondFilePath, outputFormat) => {
+const genDiff = (firstFilePath, secondFilePath, outputFormat = 'Object') => {
   const firstConfigFile = fs.readFileSync(firstFilePath, 'utf8');
   const secondConfigFile = fs.readFileSync(secondFilePath, 'utf8');
   const firstConfigFormat = path.extname(firstFilePath);
@@ -53,7 +53,6 @@ const genDiff = (firstFilePath, secondFilePath, outputFormat) => {
     return differenceAst;
   };
   const difference = genDiffAst(firstConfigObj, secondConfigObj);
-  console.log(difference);
   return render(difference, outputFormat);
 };
 
