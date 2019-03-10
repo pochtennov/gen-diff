@@ -8,6 +8,6 @@
 npm install -g pocht-gendiff
 
 # To use 
-gendiff -f [format] <firstConfigFile> <secondConfigFile>
+gendiff -f [format] firstConfigFile secondConfigFile
 
 [![asciicast](https://asciinema.org/a/8TrLRfsfzt0SWpS1wwHuNLHmB.svg)](https://asciinema.org/a/8TrLRfsfzt0SWpS1wwHuNLHmB)
