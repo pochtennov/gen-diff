@@ -4,7 +4,7 @@ import path from 'path';
 import parse from './parsers';
 import render from './renderers';
 
-const genDiff = (firstFilePath, secondFilePath, outputFormat = 'Object') => {
+const genDiff = (firstFilePath, secondFilePath, outputFormat = 'complex') => {
   const firstConfigFile = fs.readFileSync(firstFilePath, 'utf8');
   const secondConfigFile = fs.readFileSync(secondFilePath, 'utf8');
   const firstConfigFormat = path.extname(firstFilePath);
@@ -28,7 +28,7 @@ const genDiff = (firstFilePath, secondFilePath, outputFormat = 'Object') => {
             return [...acc, {
               keyName: currentKey,
               keyValue: firstConfObj[currentKey],
-              nodeType: 'not changed',
+              nodeType: 'same',
             }];
           }
           return [...acc, {

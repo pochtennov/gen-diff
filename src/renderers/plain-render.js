@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const plainRender = (differenceAst) => {
+const render = (differenceAst) => {
   const stringify = (keyValue) => {
     if (_.isObject(keyValue)) {
       return '[complex value]';
@@ -11,26 +11,26 @@ const plainRender = (differenceAst) => {
     return `'${keyValue}'`;
   };
 
-  const differenceString = (diffAst, nodeParentName) => {
-    const diffStr = diffAst.reduce((acc, currentNode) => {
-      switch (currentNode.nodeType) {
+  const findDifferenceString = (diffAst, nodeParentName) => {
+    const diffStr = diffAst.map((element) => {
+      switch (element.nodeType) {
         case 'changed':
-          return [...acc, `Property '${nodeParentName}${currentNode.keyName}' was updated. From ${stringify(currentNode.keyValueBeforeChange)} to ${stringify(currentNode.keyValueAfterChange)}`];
+          return `Property '${nodeParentName}${element.keyName}' was updated. From ${stringify(element.keyValueBeforeChange)} to ${stringify(element.keyValueAfterChange)}`;
         case 'added':
-          return [...acc, `Property '${nodeParentName}${currentNode.keyName}' was added with value: ${stringify(currentNode.keyValue)}`];
+          return `Property '${nodeParentName}${element.keyName}' was added with value: ${stringify(element.keyValue)}`;
         case 'deleted':
-          return [...acc, `Property '${nodeParentName}${currentNode.keyName}' was removed`];
-        case 'not changed':
-          return [...acc];
+          return `Property '${nodeParentName}${element.keyName}' was removed`;
+        case 'same':
+          return '';
         case 'nested':
-          return [...acc, `${differenceString(currentNode.children, `${nodeParentName}${currentNode.keyName}.`)}`];
+          return `${findDifferenceString(element.children, `${nodeParentName}${element.keyName}.`)}`;
         default:
           return 'Error! Something wrong happened during reading the file';
       }
-    }, []);
-    return `${diffStr.join('\n')}`;
+    });
+    return `${diffStr.filter(element => element !== '').join('\n')}`;
   };
-  return differenceString(differenceAst, '');
+  return findDifferenceString(differenceAst, '');
 };
 
-export default plainRender;
+export default render;
