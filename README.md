@@ -1,4 +1,4 @@
-# project-lvl2-s439
+# Generate difference from two config files
 
 [![Maintainability](https://api.codeclimate.com/v1/badges/2420dd3ebfce14660ae0/maintainability)](https://codeclimate.com/github/pochtennov/project-lvl2-s439/maintainability)
 
